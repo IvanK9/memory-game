@@ -6,6 +6,7 @@ let lockBoard = false;
 let flipBackTimer = null;
 let movesCount = 0;
 let matchedCount = 0;
+let isGameFinished = false;
 
 function createEl(tag, className, text) {
   const el = document.createElement(tag);
@@ -45,7 +46,11 @@ function gameField() {
   const field = createEl("ul", "game__field list-reset");
   const stats = createEl("div", "game__stats");
   const moves = createEl("div", "game__moves", "Ходов: 0");
-  const matchedPairs = createEl("div", "game__matched-pairs", "Совпадений: 0 из 8");
+  const matchedPairs = createEl(
+    "div",
+    "game__matched-pairs",
+    "Совпадений: 0 из 8",
+  );
   stats.append(moves, matchedPairs);
 
   buildDeck().forEach((cardData) => field.append(createCard(cardData)));
@@ -93,6 +98,7 @@ function cardClick(event) {
   const card = event.currentTarget;
 
   if (
+    isGameFinished ||
     lockBoard ||
     card.classList.contains("card--open") ||
     card.classList.contains("card--matched")
@@ -123,6 +129,10 @@ function handleMatch(card) {
   document.querySelector(".game__matched-pairs").textContent =
     `Совпадений: ${matchedCount} из 8`;
   firstCard = null;
+
+  if (matchedCount === CARD_PAIRS_COUNT) {
+    finishGame();
+  }
 }
 
 function handleMismatch(card) {
@@ -137,4 +147,42 @@ function handleMismatch(card) {
   }, 1500);
 }
 
-document.body.append(gameField());
+function createModal() {
+  const modal = createEl("dialog", "modal");
+  const modalWrapper = createEl("div", "modal__wrapper");
+  const modalTitle = createEl("h2", "modal__title", "Победа!!!");
+  const modalText = createEl("p", "modal__text", "");
+  const modalBtns = createEl("div", "modal__btns");
+  const modalNewGame = createEl(
+    "button",
+    "modal__btn modal__btn-new",
+    "Новая игра",
+  );
+  const modalClose = createEl(
+    "button",
+    "modal__btn modal__btn-close",
+    "Закрыть",
+  );
+
+  modalWrapper.append(modalTitle, modalText, modalBtns);
+  modalBtns.append(modalNewGame, modalClose);
+  modal.append(modalWrapper);
+  return modal;
+}
+
+function finishGame() {
+  isGameFinished = true;
+  const modal = document.querySelector(".modal");
+  const text = document.querySelector(".modal__text");
+
+  text.textContent = `Вы нашли все пары за ${movesCount} ходов!`;
+  modal.showModal();
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.close();
+    }
+  });
+}
+
+document.body.append(gameField(), createModal());
