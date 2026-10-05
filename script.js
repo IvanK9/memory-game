@@ -32,6 +32,8 @@ function createHeader() {
   wrapper.appendChild(btnWrappers);
   btnWrappers.appendChild(btnGame);
   btnWrappers.appendChild(btnLiders);
+
+  btnGame.addEventListener("click", newGame);
   return header;
 }
 
@@ -167,6 +169,16 @@ function createModal() {
   modalWrapper.append(modalTitle, modalText, modalBtns);
   modalBtns.append(modalNewGame, modalClose);
   modal.append(modalWrapper);
+
+  modalNewGame.addEventListener('click', () => {
+    modal.close();
+    newGame();
+  });
+
+  modalClose.addEventListener('click', ()=> {
+    modal.close();
+  });
+
   return modal;
 }
 
@@ -183,6 +195,27 @@ function finishGame() {
       modal.close();
     }
   });
+}
+
+function newGame() {
+  firstCard = null;
+  lockBoard = false;
+  isGameFinished = false;
+
+  if (flipBackTimer) {
+    clearTimeout(flipBackTimer);
+    flipBackTimer = null;
+  }
+
+  movesCount = 0;
+  matchedCount = 0;
+  document.querySelector(".game__moves").textContent = `Ходов: ${movesCount}`;
+  document.querySelector(".game__matched-pairs").textContent =
+    `Совпадений: ${matchedCount} из 8`;
+
+  const field = document.querySelector(".game__field");
+  field.replaceChildren();
+  buildDeck().forEach((cardData) => field.append(createCard(cardData)));
 }
 
 document.body.append(gameField(), createModal());
