@@ -17,6 +17,12 @@ img {
   max-width: 100%;
 }
 
+.list-reset {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 :root {
   --bg-start: #1a1a2e;
   --bg-end: #16213e;
@@ -84,4 +90,42 @@ header {
 
 .header__button:active {
   transform: scale(0.95);
+}
+
+/* GAME */
+
+.game__wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.game__field {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 30px;
+  width: min(90vw, 560px);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc((100% - 36px) / 4);
+  aspect-ratio: 3 / 4;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 12px;
+  border: 1px solid var(--color-text);
+}
+
+.game__stats {
+  display: flex;
+  gap: 100px;
+  font-size: 24px;
+  color: var(--color-text);
 }
