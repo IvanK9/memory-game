@@ -1,5 +1,7 @@
 const CARD_FACES = ["🐙", "🦋", "🌿", "🍄", "🐬", "🌸", "🦉", "🍑"];
 const CARD_PAIRS_COUNT = 8;
+const LEADERBOARD_KEY = "memory-game-leader";
+const LEADERBOARD_MAX = 10;
 
 let firstCard = null;
 let lockBoard = false;
@@ -34,6 +36,12 @@ function createHeader() {
   btnWrappers.appendChild(btnLiders);
 
   btnGame.addEventListener("click", newGame);
+
+  btnLiders.addEventListener("click", () => {
+    createLeaderboard();
+    document.querySelector(".modal__leaders").showModal();
+  });
+
   return header;
 }
 
@@ -170,12 +178,12 @@ function createModal() {
   modalBtns.append(modalNewGame, modalClose);
   modal.append(modalWrapper);
 
-  modalNewGame.addEventListener('click', () => {
+  modalNewGame.addEventListener("click", () => {
     modal.close();
     newGame();
   });
 
-  modalClose.addEventListener('click', ()=> {
+  modalClose.addEventListener("click", () => {
     modal.close();
   });
 
@@ -184,6 +192,10 @@ function createModal() {
 
 function finishGame() {
   isGameFinished = true;
+  const records = loadLeaderboard();
+  records.push({ moves: movesCount, date: Date.now() });
+  records.sort((a, b) => a.moves - b.moves || a.date - b.date);
+  saveLeaderboard(records.slice(0, LEADERBOARD_MAX));
   const modal = document.querySelector(".modal");
   const text = document.querySelector(".modal__text");
 
@@ -218,4 +230,88 @@ function newGame() {
   buildDeck().forEach((cardData) => field.append(createCard(cardData)));
 }
 
-document.body.append(gameField(), createModal());
+function loadLeaderboard() {
+  try {
+    const data = JSON.parse(localStorage.getItem(LEADERBOARD_KEY));
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveLeaderboard(records) {
+  localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(records));
+}
+
+function leaderModal() {
+  const modal = createEl("dialog", "modal modal__leaders");
+  const modalWrapper = createEl("div", "modal__wrapper");
+  const modalTitle = createEl("h2", "modal__title", "Таблица лидеров");
+  const modalClose = createEl(
+    "button",
+    "modal__btn modal__btn-close",
+    "Закрыть",
+  );
+  const modalTable = createEl("table", "modal__leaderboard leaderboard");
+
+  modalClose.addEventListener("click", () => {
+    modal.close();
+  });
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      modal.close();
+    }
+  });
+
+  modalWrapper.append(modalTitle, modalTable, modalClose);
+  modal.append(modalWrapper);
+
+  return modal;
+}
+
+function createLeaderboard() {
+  const table = document.querySelector(".modal__leaderboard");
+  table.replaceChildren();
+
+  const thead = createEl("thead", 'leaderboard__head');
+  const tbody = createEl("tbody", "leaderboard__body")
+  const headRow = createEl("tr", "leaderboard__headrow");
+
+  const placeTh = createEl("th", "leaderboard__head-cell", "Место");
+  const movesTh = createEl("th", "leaderboard__head-cell", "Ходы");
+  const dateTh = createEl("th", "leaderboard__head-cell", "Дата");
+
+  headRow.append(placeTh, movesTh, dateTh);
+  thead.append(headRow);
+
+  const records = loadLeaderboard();
+
+  if (records.length === 0) {
+    const empty = createEl("p", "leaderboard__empty", "Пока нет результатов");
+    table.append(empty);
+    return;
+  }
+
+  records.forEach((record, index) => {
+    const row = createEl("tr", "leaderboard__row");
+    const place = createEl("td", "leaderboard__cell", String(index + 1));
+    const moves = createEl("td", "leaderboard__cell", String(record.moves));
+
+    const date = new Date(record.date);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const dateCell = createEl(
+      "td",
+      "leaderboard__cell",
+      `${day}.${month}.${year}`,
+    );
+
+    row.append(place, moves, dateCell);
+    tbody.append(row);
+    table.append(thead, tbody);
+  });
+}
+
+document.body.append(gameField(), createModal(), leaderModal());

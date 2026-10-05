@@ -34,6 +34,7 @@ img {
   --color-card-front: #3ddad7;
   --color-card-front-text: #0f3460;
   --color-accent: #f7b267;
+  --color-border: #91919c;
 }
 
 body {
@@ -252,4 +253,22 @@ header {
 
 .modal__btn:active {
   transform: scale(0.95);
+}
+
+.modal__leaderboard {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard__head-cell,
+.leaderboard__cell {
+  padding: 8px 20px;
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.leaderboard__empty {
+  margin: 0;
+  margin-bottom: 20px;
+  color: var(--color-text);
 }
