@@ -22,7 +22,7 @@ function createHeader() {
   const header = createEl("header", "header");
   const container = createEl("div", "container");
   const wrapper = createEl("div", "header__wrapper");
-  const h1 = createEl("h1", "header__title", "Memory Game");
+  const h1 = createEl("h1", "header__title", "Найди пару");
   const btnWrappers = createEl("div", "header__btns");
   const btnGame = createEl("button", "header__button", "Новая игра");
   const btnLiders = createEl("button", "header__button", "Таблица лидеров");
@@ -275,7 +275,7 @@ function createLeaderboard() {
   table.replaceChildren();
 
   const thead = createEl("thead", 'leaderboard__head');
-  const tbody = createEl("tbody", "leaderboard__body")
+  const tbody = createEl("tbody", "leaderboard__body");
   const headRow = createEl("tr", "leaderboard__headrow");
 
   const placeTh = createEl("th", "leaderboard__head-cell", "Место");
