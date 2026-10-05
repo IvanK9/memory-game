@@ -45,7 +45,7 @@ function gameField() {
   const field = createEl("ul", "game__field list-reset");
   const stats = createEl("div", "game__stats");
   const moves = createEl("div", "game__moves", "Ходов: 0");
-  const matchedPairs = createEl("div", "game__matched-pairs", "Совпадений: 0");
+  const matchedPairs = createEl("div", "game__matched-pairs", "Совпадений: 0 из 8");
   stats.append(moves, matchedPairs);
 
   buildDeck().forEach((cardData) => field.append(createCard(cardData)));
@@ -92,7 +92,11 @@ function createCard(cardData) {
 function cardClick(event) {
   const card = event.currentTarget;
 
-  if (lockBoard || card.classList.contains("card--open")) {
+  if (
+    lockBoard ||
+    card.classList.contains("card--open") ||
+    card.classList.contains("card--matched")
+  ) {
     return;
   }
 
@@ -108,17 +112,29 @@ function cardClick(event) {
   if (card.dataset.value === firstCard.dataset.value) {
     handleMatch(card);
   } else {
-    return
+    handleMismatch(card);
   }
 }
 
 function handleMatch(card) {
-  card.classList.add('card--matched');
-  firstCard.classList.add('card--matched');
+  card.classList.add("card--matched");
+  firstCard.classList.add("card--matched");
   matchedCount += 1;
-  document.querySelector('.game__matched-pairs').textContent = `Совпадений: ${matchedCount}`;
+  document.querySelector(".game__matched-pairs").textContent =
+    `Совпадений: ${matchedCount} из 8`;
   firstCard = null;
 }
 
+function handleMismatch(card) {
+  lockBoard = true;
+  const secondCard = card;
+
+  flipBackTimer = setTimeout(() => {
+    secondCard.classList.remove("card--open");
+    firstCard.classList.remove("card--open");
+    firstCard = null;
+    lockBoard = false;
+  }, 1500);
+}
 
 document.body.append(gameField());
